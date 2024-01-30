@@ -7,7 +7,15 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.dioses.loginretrofit.databinding.ActivityMainBinding
 import com.dioses.loginretrofit.Constants
+import com.dioses.loginretrofit.retrofit.LoginResponse
+import com.dioses.loginretrofit.retrofit.Loginservice
+import com.dioses.loginretrofit.retrofit.UserInfo
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 /****
  * Project: Login API REST
@@ -46,6 +54,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun login() {
+        val email = mBinding.etEmail.text.toString().trim()
+        val password = mBinding.etPassword.text.toString().trim()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(Constants.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(Loginservice::class.java)
+
+        service.login(UserInfo(email, password)).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+
+                val result = response.body()
+
+                updateUI("${Constants.TOKEN_PROPERTY}: ${result?.token}")
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                Log.e("Retrofit", "Problemas en el servidor.")
+            }
+
+        })
+
         /*
         val typeMethod =
             if (mBinding.swType.isChecked) Constants.LOGIN_PATH else Constants.REGISTER_PATH
