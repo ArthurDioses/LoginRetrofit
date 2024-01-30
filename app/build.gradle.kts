@@ -40,6 +40,8 @@ android {
 }
 
 val glideVersion = "4.16.0"
+val coroutinesVersion = "1.7.1"
+val lifecycleVersion = "2.7.0"
 
 dependencies {
 
@@ -55,10 +57,13 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:$glideVersion")
     ksp ("com.github.bumptech.glide:ksp:$glideVersion")
 
-    //Volley
-    implementation ("com.android.volley:volley:1.2.1")
-    //Gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    //Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

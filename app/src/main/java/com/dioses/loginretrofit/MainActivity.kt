@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.toolbox.JsonObjectRequest
 import com.dioses.loginretrofit.databinding.ActivityMainBinding
 import com.dioses.loginretrofit.Constants
 import org.json.JSONObject
@@ -47,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun login() {
+        /*
         val typeMethod =
             if (mBinding.swType.isChecked) Constants.LOGIN_PATH else Constants.REGISTER_PATH
 
@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         LoginApplication.reqResAPI.addToRequestQueue(jsonObjectRequest)
+         */
     }
 
     private fun updateUI(result: String) {

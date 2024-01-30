@@ -3,13 +3,11 @@ package com.dioses.loginretrofit
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.dioses.loginretrofit.databinding.ActivityProfileBinding
 import com.dioses.loginretrofit.Constants
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
 
 /****
  * Project: Login API REST
@@ -35,6 +33,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun loadUserProfile() {
+        /*
 
         val url = Constants.BASE_URL + Constants.API_PATH + Constants.USERS_PATH + Constants.TWO_PATH
 
@@ -65,6 +64,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         LoginApplication.reqResAPI.addToRequestQueue(jsonObjectRequest)
+         */
     }
     private fun updateUI(user: User, support: Support) {
         with(mBinding) {
