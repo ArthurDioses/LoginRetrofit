@@ -72,11 +72,15 @@ class MainActivity : AppCompatActivity() {
                 (e as? HttpException)?.let {
                     when (it.code()) {
                         400 -> {
-                            updateUI(getString(R.string.main_error_server))
+                            withContext(Dispatchers.Main) {
+                                updateUI(getString(R.string.main_error_server))
+                            }
                         }
 
                         else -> {
-                            updateUI(getString(R.string.main_error_response))
+                            withContext(Dispatchers.Main) {
+                                updateUI(getString(R.string.main_error_response))
+                            }
                         }
                     }
                 }
@@ -122,19 +126,25 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = service.registerUser(UserInfo(email, password))
-                updateUI(
-                    "${Constants.ID_PROPERTY}: ${result.id}, " +
-                            "${Constants.TOKEN_PROPERTY}: ${result.token}"
-                )
+                withContext(Dispatchers.Main) {
+                    updateUI(
+                        "${Constants.ID_PROPERTY}: ${result.id}, " +
+                                "${Constants.TOKEN_PROPERTY}: ${result.token}"
+                    )
+                }
             } catch (e: Exception) {
                 (e as? HttpException)?.let {
                     when (it.code()) {
                         400 -> {
-                            updateUI(getString(R.string.main_error_server))
+                            withContext(Dispatchers.Main) {
+                                updateUI(getString(R.string.main_error_server))
+                            }
                         }
 
                         else -> {
-                            updateUI(getString(R.string.main_error_response))
+                            withContext(Dispatchers.Main) {
+                                updateUI(getString(R.string.main_error_response))
+                            }
                         }
                     }
                 }
