@@ -66,10 +66,20 @@ class MainActivity : AppCompatActivity() {
 
         service.login(UserInfo(email, password)).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                when (response.code()) {
+                    200 -> {
+                        val result = response.body()
+                        updateUI("${Constants.TOKEN_PROPERTY}: ${result?.token}")
+                    }
 
-                val result = response.body()
+                    400 -> {
+                        updateUI(getString(R.string.main_error_server))
+                    }
 
-                updateUI("${Constants.TOKEN_PROPERTY}: ${result?.token}")
+                    else -> {
+                        updateUI(getString(R.string.main_error_response))
+                    }
+                }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
