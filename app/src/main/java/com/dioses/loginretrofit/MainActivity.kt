@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mBinding.btnLogin.setOnClickListener {
-            if (mBinding.swType.isChecked) login() else register()
+            loginOrRegister()
         }
 
         mBinding.btnProfile.setOnClickListener {
@@ -51,17 +51,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun login() {
+    private fun loginOrRegister() {
         val email = mBinding.etEmail.text.toString().trim()
         val password = mBinding.etPassword.text.toString().trim()
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        val retrofit = Retrofit.Builder().baseUrl(Constants.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()).build()
 
         val service = retrofit.create(Loginservice::class.java)
 
+
+        if (mBinding.swType.isChecked) login(email, password, service)
+        else register(email, password, service)
+    }
+
+    private fun login(email: String, password: String, service: Loginservice) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = service.loginUser(UserInfo(email, password))
@@ -70,19 +74,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 (e as? HttpException)?.let {
-                    when (it.code()) {
-                        400 -> {
-                            withContext(Dispatchers.Main) {
-                                updateUI(getString(R.string.main_error_server))
-                            }
-                        }
-
-                        else -> {
-                            withContext(Dispatchers.Main) {
-                                updateUI(getString(R.string.main_error_response))
-                            }
-                        }
-                    }
+                    checkError(e)
                 }
             }
         }
@@ -114,43 +106,36 @@ class MainActivity : AppCompatActivity() {
         */
     }
 
-    private fun register() {
-        val email = mBinding.etEmail.text.toString().trim()
-        val password = mBinding.etPassword.text.toString().trim()
-
-        val retrofit = Retrofit.Builder().baseUrl(Constants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create()).build()
-
-        val service = retrofit.create(Loginservice::class.java)
-
+    private fun register(email: String, password: String, service: Loginservice) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = service.registerUser(UserInfo(email, password))
                 withContext(Dispatchers.Main) {
                     updateUI(
-                        "${Constants.ID_PROPERTY}: ${result.id}, " +
-                                "${Constants.TOKEN_PROPERTY}: ${result.token}"
+                        "${Constants.ID_PROPERTY}: ${result.id}, " + "${Constants.TOKEN_PROPERTY}: ${result.token}"
                     )
                 }
             } catch (e: Exception) {
                 (e as? HttpException)?.let {
-                    when (it.code()) {
-                        400 -> {
-                            withContext(Dispatchers.Main) {
-                                updateUI(getString(R.string.main_error_server))
-                            }
-                        }
-
-                        else -> {
-                            withContext(Dispatchers.Main) {
-                                updateUI(getString(R.string.main_error_response))
-                            }
-                        }
-                    }
+                    checkError(e)
                 }
             }
         }
 
+    }
+
+    private suspend fun checkError(e: HttpException) = when (e.code()) {
+        400 -> {
+            withContext(Dispatchers.Main) {
+                updateUI(getString(R.string.main_error_server))
+            }
+        }
+
+        else -> {
+            withContext(Dispatchers.Main) {
+                updateUI(getString(R.string.main_error_response))
+            }
+        }
     }
 
     private fun updateUI(result: String) {
