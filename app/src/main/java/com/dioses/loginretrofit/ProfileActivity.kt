@@ -1,13 +1,18 @@
 package com.dioses.loginretrofit
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.dioses.loginretrofit.databinding.ActivityProfileBinding
-import com.dioses.loginretrofit.Constants
+import com.dioses.loginretrofit.retrofit.UserService
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 /****
  * Project: Login API REST
@@ -33,57 +38,37 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun loadUserProfile() {
-        /*
 
-        val url = Constants.BASE_URL + Constants.API_PATH + Constants.USERS_PATH + Constants.TWO_PATH
+        val retrofit = Retrofit.Builder().baseUrl(Constants.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()).build()
 
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, url, null, { response ->
-            Log.i("response", response.toString())
+        val service = retrofit.create(UserService::class.java)
 
-            val gson = Gson()
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val result = service.getSingleUser()
+                updateUI(result.data, result.support)
 
-            val userJson = response.optJSONObject(Constants.DATA_PROPERTY)?.toString()
-            val user: User = gson.fromJson(userJson, User::class.java)
-
-            val supportJson = response.optJSONObject(Constants.SUPPORT_PROPERTY)?.toString()
-            val support: Support = gson.fromJson(supportJson, Support::class.java)
-
-            updateUI(user, support)
-        }, {
-            it.printStackTrace()
-            if (it.networkResponse != null && it.networkResponse.statusCode == 400){
+            } catch (e: Exception) {
                 showMessage(getString(R.string.main_error_server))
             }
-        }){
-            override fun getHeaders(): MutableMap<String, String> {
-                val params = HashMap<String, String>()
-
-                params["Content-Type"] = "application/json"
-                return params
-            }
         }
-
-        LoginApplication.reqResAPI.addToRequestQueue(jsonObjectRequest)
-         */
     }
-    private fun updateUI(user: User, support: Support) {
+
+    private suspend fun updateUI(user: User, support: Support) = withContext(Dispatchers.Main) {
         with(mBinding) {
             tvFullName.text = user.getFullName()
             tvEmail.text = user.email
 
-            Glide.with(this@ProfileActivity)
-                .load(user.avatar)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .circleCrop()
-                .into(imgProfile)
+            Glide.with(this@ProfileActivity).load(user.avatar)
+                .diskCacheStrategy(DiskCacheStrategy.ALL).centerCrop().circleCrop().into(imgProfile)
 
             tvSupportMessage.text = support.text
             tvSupportUrl.text = support.url
         }
     }
 
-    private fun showMessage(message: String){
+    private fun showMessage(message: String) {
         Snackbar.make(mBinding.root, message, Snackbar.LENGTH_SHORT).show()
     }
 }
