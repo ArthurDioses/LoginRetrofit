@@ -8,7 +8,9 @@ import androidx.lifecycle.lifecycleScope
 import com.dioses.loginretrofit.databinding.ActivityMainBinding
 import com.dioses.loginretrofit.retrofit.Loginservice
 import com.dioses.loginretrofit.retrofit.UserInfo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -60,10 +62,12 @@ class MainActivity : AppCompatActivity() {
 
         val service = retrofit.create(Loginservice::class.java)
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = service.loginUser(UserInfo(email, password))
-                updateUI("${Constants.TOKEN_PROPERTY}: ${result.token}")
+                withContext(Dispatchers.Main) {
+                    updateUI("${Constants.TOKEN_PROPERTY}: ${result.token}")
+                }
             } catch (e: Exception) {
                 (e as? HttpException)?.let {
                     when (it.code()) {
@@ -115,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
         val service = retrofit.create(Loginservice::class.java)
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = service.registerUser(UserInfo(email, password))
                 updateUI(
